@@ -3,418 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manager Portal - Campus Hostels</title>
-  <!-- Google Fonts & Lucide Icons -->
+  <title>Campus Hostels Finder</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root {
-      --bg-main: #FAFAFA;
-      --card-bg: #FFFFFF;
-      --text-dark: #0F172A;
-      --text-muted: #64748B;
-      --border-color: #E2E8F0;
-      --primary: #2563EB;
-      --primary-hover: #1D4ED8;
-      --danger: #EF4444;
-      --success: #10B981;
-      --radius: 12px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-main);
-      color: var(--text-dark);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
-      background: var(--card-bg);
-      border-bottom: 1px solid var(--border-color);
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logo {
-      font-weight: 700;
-      font-size: 1.25rem;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      text-decoration: none;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-      width: 100%;
-    }
-
-    /* Auth Card Styles */
-    .auth-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      padding: 2.5rem;
-      max-width: 420px;
-      margin: 3rem auto;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
-    }
-
-    .auth-tabs {
-      display: flex;
-      margin-bottom: 1.5rem;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .auth-tab {
-      flex: 1;
-      padding: 0.75rem;
-      text-align: center;
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--text-muted);
-      border-bottom: 2px solid transparent;
-    }
-
-    .auth-tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-
-    /* Form & Input Controls */
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.875rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--text-dark);
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.2s;
-      background-color: #fff;
-    }
-
-    .form-control:focus {
-      border-color: var(--primary);
-    }
-
-    .checkbox-group {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 0.5rem;
-    }
-
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      cursor: pointer;
-    }
-
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      transition: all 0.2s;
-      width: 100%;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-hover);
-    }
-
-    .btn-danger {
-      background: #FEE2E2;
-      color: var(--danger);
-      width: auto;
-    }
-
-    .btn-danger:hover {
-      background: #FCA5A5;
-    }
-
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--border-color);
-      color: var(--text-dark);
-      width: auto;
-    }
-
-    /* Image Preview Container */
-    .preview-container {
-      margin-top: 0.5rem;
-      display: none;
-      border: 1px dashed var(--border-color);
-      padding: 0.5rem;
-      border-radius: 8px;
-      text-align: center;
-    }
-
-    .preview-container img {
-      max-height: 140px;
-      border-radius: 6px;
-      object-fit: cover;
-    }
-
-    /* Manager Dashboard UI */
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .stat-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      padding: 1.25rem;
-      border-radius: var(--radius);
-    }
-
-    .stat-card h4 {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-
-    .stat-card .value {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-top: 0.25rem;
-    }
-
-    .section-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .section-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      margin-bottom: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    /* Hostel List Items */
-    .hostel-item {
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .hostel-item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-
-    .room-badge {
-      display: inline-block;
-      background: #EFF6FF;
-      color: var(--primary);
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-right: 0.5rem;
-      margin-top: 0.5rem;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-  </style>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
 
   <header>
     <a href="index.html" class="logo">
-      <i data-lucide="building-2"></i> Campus Rooms - Manager Portal
+      <i data-lucide="building-2"></i> Campus Rooms
     </a>
-    <div id="userNav" class="hidden">
-      <span id="userEmail" style="margin-right: 1rem; font-size:0.9rem; color: var(--text-muted);"></span>
-      <button onclick="handleLogout()" class="btn btn-outline" style="padding:0.4rem 0.8rem;">Logout</button>
-    </div>
+    <a href="manager.html" class="nav-btn">Manager Portal</a>
   </header>
 
   <main class="container">
-    <!-- AUTH SECTION (LOGIN / REGISTER) -->
-    <div id="authSection" class="auth-card">
-      <div class="auth-tabs">
-        <div id="tabLogin" class="auth-tab active" onclick="switchAuthTab('login')">Log In</div>
-        <div id="tabRegister" class="auth-tab" onclick="switchAuthTab('register')">Register</div>
+    <!-- SMART BUDGET RECOMMENDATION SEARCH -->
+    <div class="filter-card">
+      <h3 style="margin-bottom: 1rem; font-size: 1.1rem; color: var(--primary);">
+        🎯 Find Hostels Within Your Budget
+      </h3>
+      <div class="filter-grid">
+        <div class="form-group">
+          <label>Max Budget ($/yr)</label>
+          <input type="number" id="budgetInput" class="form-control" placeholder="e.g. 1500" />
+        </div>
+        <div class="form-group">
+          <label>Your College</label>
+          <select id="budgetCollege" class="form-control">
+            <option value="ALL">All Colleges</option>
+            <option value="Science">Science</option>
+            <option value="Business">Business</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Arts & Social Sciences">Arts & Social Sciences</option>
+            <option value="Health Sciences">Health Sciences</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Room Preference</label>
+          <select id="budgetRoomType" class="form-control">
+            <option value="ALL">Any Room Type</option>
+            <option value="1-in-1">1-in-1</option>
+            <option value="2-in-1">2-in-1</option>
+            <option value="3-in-1">3-in-1</option>
+            <option value="4-in-1">4-in-1</option>
+          </select>
+        </div>
+        <button onclick="runBudgetRecommendation()" class="btn-search">Match Budget</button>
       </div>
-
-      <form id="authForm" onsubmit="handleAuth(event)">
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="authEmail" class="form-control" placeholder="manager@example.com" required />
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="authPassword" class="form-control" placeholder="••••••••" required minlength="6" />
-        </div>
-        <button type="submit" id="authSubmitBtn" class="btn btn-primary">Log In</button>
-      </form>
     </div>
 
-    <!-- MAIN DASHBOARD SECTION (Shown after Login) -->
-    <div id="dashboardSection" class="hidden">
-      <div class="dashboard-header">
-        <div>
-          <h2>Hostel Management Panel</h2>
-          <p style="color: var(--text-muted); font-size:0.9rem;">Manage your properties, room availability, and prices in real-time.</p>
-        </div>
-        <a href="index.html" class="btn btn-outline"><i data-lucide="external-link"></i> View Main Site</a>
-      </div>
-
-      <!-- Quick Stats -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <h4>Total Hostels Listed</h4>
-          <div class="value" id="statHostels">0</div>
-        </div>
-        <div class="stat-card">
-          <h4>Total Room Configurations</h4>
-          <div class="value" id="statRooms">0</div>
-        </div>
-        <div class="stat-card">
-          <h4>Available Slots</h4>
-          <div class="value" id="statSlots">0</div>
-        </div>
-      </div>
-
-      <!-- Add Hostel Form -->
-      <div class="section-card">
-        <h3 class="section-title"><i data-lucide="plus-circle"></i> Add New Hostel</h3>
-        <form id="addHostelForm" onsubmit="handleAddHostel(event)">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div class="form-group">
-              <label>Hostel Name</label>
-              <input type="text" id="hostelName" class="form-control" placeholder="e.g. Sunshine Heights" required />
-            </div>
-            <div class="form-group">
-              <label>Phone / WhatsApp Contact</label>
-              <input type="tel" id="hostelPhone" class="form-control" placeholder="e.g. +233 24 000 0000" required />
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div class="form-group">
-              <label>Distance to Campus (Minutes Walk)</label>
-              <input type="number" id="hostelDistance" class="form-control" placeholder="e.g. 5" min="1" required />
-            </div>
-            <!-- Upload Photo from Computer/Phone Input -->
-            <div class="form-group">
-              <label>Upload Hostel Photo</label>
-              <input type="file" id="hostelImageFile" accept="image/*" class="form-control" onchange="previewSelectedImage(event)" required />
-              <div id="imagePreviewBox" class="preview-container">
-                <img id="imagePreviewImg" src="" alt="Selected Preview" />
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Suitable Colleges / Faculties</label>
-            <div class="checkbox-group">
-              <label class="checkbox-label"><input type="checkbox" name="college" value="Science" /> Science</label>
-              <label class="checkbox-label"><input type="checkbox" name="college" value="Business" /> Business</label>
-              <label class="checkbox-label"><input type="checkbox" name="college" value="Engineering" /> Engineering</label>
-              <label class="checkbox-label"><input type="checkbox" name="college" value="Arts & Social Sciences" /> Arts & Social</label>
-              <label class="checkbox-label"><input type="checkbox" name="college" value="Health Sciences" /> Health Sciences</label>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Hostel Description & Amenities</label>
-            <textarea id="hostelDescription" class="form-control" rows="3" placeholder="Describe security, Wi-Fi, water backup, power generator, etc."></textarea>
-          </div>
-
-          <button type="submit" id="saveHostelBtn" class="btn btn-primary" style="width: auto;"><i data-lucide="plus"></i> Save Hostel</button>
-        </form>
-      </div>
-
-      <!-- Hostel List & Room Adder -->
-      <div class="section-card">
-        <h3 class="section-title"><i data-lucide="building"></i> Your Managed Hostels</h3>
-        <div id="hostelsContainer">
-          <!-- Dynamically populated via JS -->
-        </div>
-      </div>
+    <!-- HOSTELS CONTAINER GRID -->
+    <div id="hostelsGrid" class="hostels-grid">
+      <!-- Populated dynamically via js/app.js -->
     </div>
   </main>
+  <a href="manager.html">Manager Login</a>
 
   <script src="js/supabase.js"></script>
-  <script src="js/manager.js"></script>
-  <script>
-    // Preview the image before submitting the form
-    function previewSelectedImage(event) {
-      const file = event.target.files[0];
-      const previewBox = document.getElementById('imagePreviewBox');
-      const previewImg = document.getElementById('imagePreviewImg');
-      
-      if (file) {
-        previewImg.src = URL.createObjectURL(file);
-        previewBox.style.display = 'block';
-      } else {
-        previewBox.style.display = 'none';
-      }
-    }
-  </script>
-  <a href="index.html">Back to Hostels</a>
+  <script src="js/app.js"></script>
 </body>
 </html>
