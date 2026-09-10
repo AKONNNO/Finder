@@ -117,6 +117,7 @@
       font-size: 0.95rem;
       outline: none;
       transition: border-color 0.2s;
+      background-color: #fff;
     }
 
     .form-control:focus {
@@ -175,6 +176,22 @@
       border: 1px solid var(--border-color);
       color: var(--text-dark);
       width: auto;
+    }
+
+    /* Image Preview Container */
+    .preview-container {
+      margin-top: 0.5rem;
+      display: none;
+      border: 1px dashed var(--border-color);
+      padding: 0.5rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .preview-container img {
+      max-height: 140px;
+      border-radius: 6px;
+      object-fit: cover;
     }
 
     /* Manager Dashboard UI */
@@ -341,9 +358,13 @@
               <label>Distance to Campus (Minutes Walk)</label>
               <input type="number" id="hostelDistance" class="form-control" placeholder="e.g. 5" min="1" required />
             </div>
+            <!-- Upload Photo from Computer/Phone Input -->
             <div class="form-group">
-              <label>Image URL (Direct Photo Link)</label>
-              <input type="url" id="hostelImage" class="form-control" placeholder="https://images.unsplash.com/..." required />
+              <label>Upload Hostel Photo</label>
+              <input type="file" id="hostelImageFile" accept="image/*" class="form-control" onchange="previewSelectedImage(event)" required />
+              <div id="imagePreviewBox" class="preview-container">
+                <img id="imagePreviewImg" src="" alt="Selected Preview" />
+              </div>
             </div>
           </div>
 
@@ -360,10 +381,10 @@
 
           <div class="form-group">
             <label>Hostel Description & Amenities</label>
-            <textarea id="hostelDescription" class="form-control" rows="3" placeholder="Describe security, Wi-Fi, water backup, power generator, generator, etc."></textarea>
+            <textarea id="hostelDescription" class="form-control" rows="3" placeholder="Describe security, Wi-Fi, water backup, power generator, etc."></textarea>
           </div>
 
-          <button type="submit" class="btn btn-primary" style="width: auto;"><i data-lucide="plus"></i> Save Hostel</button>
+          <button type="submit" id="saveHostelBtn" class="btn btn-primary" style="width: auto;"><i data-lucide="plus"></i> Save Hostel</button>
         </form>
       </div>
 
@@ -379,5 +400,20 @@
 
   <script src="js/supabase.js"></script>
   <script src="js/manager.js"></script>
+  <script>
+    // Preview the image before submitting the form
+    function previewSelectedImage(event) {
+      const file = event.target.files[0];
+      const previewBox = document.getElementById('imagePreviewBox');
+      const previewImg = document.getElementById('imagePreviewImg');
+      
+      if (file) {
+        previewImg.src = URL.createObjectURL(file);
+        previewBox.style.display = 'block';
+      } else {
+        previewBox.style.display = 'none';
+      }
+    }
+  </script>
 </body>
 </html>
